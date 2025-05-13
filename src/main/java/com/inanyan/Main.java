@@ -1,5 +1,6 @@
 package com.inanyan;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,7 +21,7 @@ public class Main {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        Matrix c = a.multiply(b, executorService, 3);
+        Matrix c = a.multiply(b, executorService, Optional.of(6));
 
         System.out.println(c);
 

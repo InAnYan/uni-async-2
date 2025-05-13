@@ -3,9 +3,12 @@ package com.inanyan;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Matrix {
@@ -83,36 +86,51 @@ public class Matrix {
         array[row][col] = value;
     }
 
-    public Matrix multiply(Matrix matrix, ExecutorService executorService, int poolSize) throws ExecutionException, InterruptedException {
+    public Matrix multiply(Matrix matrix, ExecutorService executorService, Optional<Integer> limit) throws InterruptedException {
         if (this.getColsCount() != matrix.getRowsCount()) {
             throw new IllegalArgumentException("matrix has incorrect number of columns");
         }
 
-        if (poolSize <= 0) {
-            throw new IllegalArgumentException("poolSize must be greater than 0");
+        Semaphore semaphore = null;
+        if (limit.isPresent()) {
+            semaphore = new Semaphore(limit.get());
         }
 
+        AtomicInteger indexCounter = new AtomicInteger(0);
         Matrix result = new Matrix(this.getRowsCount(), matrix.getColsCount());
-        ReentrantLock[][] locks = new ReentrantLock[this.getRowsCount()][matrix.getColsCount()];
-        for (int i = 0; i < this.getRowsCount(); i++) {
-            for (int j = 0; j < matrix.getColsCount(); j++) {
-                locks[i][j] = new ReentrantLock();
+
+        for (int c = 0; c < result.getElementsCount(); c++) {
+            if (semaphore != null) {
+                semaphore.acquire();
+            }
+
+            executorService.submit(() -> {
+                int id = indexCounter.getAndIncrement();
+                if (id >= result.getElementsCount()) {
+                    executorService.shutdown();
+                }
+
+                int row = id / result.getRowsCount();
+                int col = id % result.getRowsCount();
+
+                float number = 0;
+                for (int i = 0; i < this.getColsCount(); i++) {
+                    number += this.get(row, i) * matrix.get(i, col);
+                }
+
+                result.set(row, col, number);
+            });
+
+            if (semaphore != null) {
+                semaphore.release();
             }
         }
 
-        List<Future<?>> futures = new ArrayList<>();
-
-        for (int i = 0; i < poolSize; i++) {
-            MatrixMultiplierThread thread = new MatrixMultiplierThread(this, matrix, result, locks);
-            Future<?> future = executorService.submit(thread);
-            futures.add(future);
-        }
-
-        for (Future<?> future : futures) {
-            future.get();
-        }
-
         return result;
+    }
+
+    public int getElementsCount() {
+        return this.getRowsCount() * this.getColsCount();
     }
 
     public String toString() {

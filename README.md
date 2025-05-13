@@ -29,17 +29,13 @@
 
 ## Результати
 
-| Pool Kinds                    |   Square matrix size |   Threads |   Tests Count |   Time of one operation (ms) |
-|:------------------------------|---------------------:|----------:|--------------:|-----------------------------:|
-| Classic Fixed Pool            |                   10 |         4 |            20 |                        0.786 |
-| Classic Fixed Pool            |                   10 |        10 |            20 |                        1.321 |
-| Classic Fixed Pool            |                  100 |         4 |            20 |                        1.507 |
-| Classic Fixed Pool            |                  100 |        10 |            20 |                        2.239 |
-| Limited `VirtualThreads` Pool |                   10 |         4 |            20 |                        0.279 |
-| Limited `VirtualThreads` Pool |                   10 |        10 |            20 |                        0.266 |
-| Limited `VirtualThreads` Pool |                  100 |         4 |            20 |                       78.686 |
-| Limited `VirtualThreads` Pool |                  100 |        10 |            20 |                       90.931 |
-| Unbound `VirtualThreads`      |                   10 |         4 |            20 |                        0.245 |
-| Unbound `VirtualThreads`      |                   10 |        10 |            20 |                        0.339 |
-| Unbound `VirtualThreads`      |                  100 |         4 |            20 |                       78.071 |
-| Unbound `VirtualThreads`      |                  100 |        10 |            20 |                       89.242 |
+Here's your data formatted as a markdown table:
+
+| Benchmark | (size) | (threadCount) | Mode | Cnt | Score | Error | Units |
+|-----------|--------|---------------|------|-----|-------|-------|-------|
+| MyBenchmark.simplePool | 1000 | 4 | avgt | 10 | 659.449 | ± 454.090 | ms/op |
+| MyBenchmark.simplePool | 1000 | 10 | avgt | 10 | 568.251 | ± 335.395 | ms/op |
+| MyBenchmark.virtualThreadsBound | 1000 | 4 | avgt | 10 | 563.215 | ± 159.798 | ms/op |
+| MyBenchmark.virtualThreadsBound | 1000 | 10 | avgt | 10 | 500.103 | ± 363.622 | ms/op |
+| MyBenchmark.virtualThreadsUnbound | 1000 | 4 | avgt | 10 | 475.990 | ± 319.491 | ms/op |
+| MyBenchmark.virtualThreadsUnbound | 1000 | 10 | avgt | 10 | 542.075 | ± 187.629 | ms/op |
